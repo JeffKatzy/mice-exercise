@@ -1,0 +1,27 @@
+# Large single-cell atlas files
+*.h5ad
+*.qs
+
+# Raw data downloads
+data/
+
+# Python virtual environment
+.venv/
+python_pipeline/.venv/
+
+# macOS metadata
+.DS_Store
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Backup files
+*.bak
+
+# Embedded submodule (track separately if needed)
+scmetab/

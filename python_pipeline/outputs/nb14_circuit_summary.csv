@@ -1,0 +1,7 @@
+finding,log2FC,padj,strength
+Fndc5 DEG Areg TC vs SC,1.5,0.008,strong
+Il33 DEG Areg TC vs SC,0.677,0.548,trend only
+Il33 DEG CP obesity SH vs SC,2.854,0.032,strong
+Il33 DEG CP rescue TH vs SH,-2.431,7.2e-07,very strong
+Fndc5×Il33 double-positive SC,,,0.3% of Areg cells
+Fndc5×Il33 double-positive TC,,,1.4% of Areg cells (5x)

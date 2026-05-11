@@ -1,0 +1,10 @@
+Observation,Key statistic,Interpretation
+Fndc5 up in Areg with exercise (vWAT),"log2FC=1.50, padj=0.008",Areg cells produce irisin precursor in response to exercise
+Fndc5 down in CP with obesity (vWAT),"log2FC=-1.18, padj=0.003",Obesity suppresses the local irisin circuit in committed progenitors
+Fndc5 up in CP rescue (TH vs SH),"log2FC=+1.32, padj=0.004",Exercise restores the circuit in obese animals
+Itgb5 highly expressed in Areg + WAT_IPC,Mean ~0.52 and ~0.54 respectively (top-2 in vWAT),The irisin receptor is present in the same cells that produce Fndc5
+Receptor genes not exercise-regulated,"Itgb5, Itgav: flat across all contrasts",Receptor is constitutively available — no barrier to local signaling
+Fndc5 goes DOWN in SkM with exercise,"Tenocyte_Pappa2+: 0.164→0.082, TSPC: 0.049→0.016",Cross-tissue asymmetry rules out muscle contamination as explanation
+Per-mouse rank separation in Areg (vWAT),min(TC)=49 counts > max(SC)=45 counts,"Signal is consistent across all mice, not driven by a single outlier"
+SM FAP states flat with exercise,"FAP_Areg SC=0.017, TC=0.018; complete per-mouse overlap",Signal is vWAT Areg-specific — not a general MSC response across tissues
+scWAT Areg check inconclusive,Group mean direction correct (SC=0.005→TC=0.014) but n=4–41 cells/mouse,Too sparse to confirm or refute; not evidence against
