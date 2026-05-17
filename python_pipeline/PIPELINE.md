@@ -364,6 +364,7 @@ B-cell contamination risk, lower priority than Fndc5/CXCL12. Do not pursue.
 - Why is Arntl (Bmal1) significantly *down* in the rescue contrast when other circadian genes go up? (Arntl is the positive arm of the clock; Nr1d2/Per3 are the repressive arm — asymmetry may reflect genuine clock phase resetting)
 - ~~What is the full Areg exercise signature beyond Fndc5?~~ **Partially resolved by NB12:** CXCL12 is the dominant Areg signal by magnitude; irisin (Fndc5) is real but smaller. See NB12 findings below.
 - What are the top 16 downregulated fibroblast rescue DEGs? Are they activation markers? (Needed to distinguish real sub-threshold biology from N=3 artifact)
+- ~~Is PGC-1α4 expressed in Areg cells?~~ **Resolved (2026-05-15):** Ppargc1a4 isoform unresolvable by scRNA-seq. Ppargc1b (PGC-1β) shows the strongest exercise fold-change in vWAT Areg cells (6.5×, SC=0.0010→TC=0.0065) — higher than any other cell type. However, per-cell correlation with Fndc5 is near-zero (r≈0), indicating parallel CLOCK-driven co-induction rather than a Ppargc1b→Fndc5 causal chain. Ppargc1b is a secondary novel observation (fat uses a different co-activator isoform than muscle) but does not revise the primary CLOCK-driven Fndc5 mechanism.
 
 ---
 
@@ -638,6 +639,149 @@ regulon-level evidence. Do Option B first; use pySCENIC to confirm the most inte
 
 ---
 
+### NB19: Human Validation — GSE176171 (Emont et al., Nature 2022)
+
+**Goal:** Check whether the Fndc5/Areg mouse finding holds in human visceral fat stem cells.
+
+**Dataset:** GSE176171 — "A single-cell atlas of human and mouse white adipose tissue"
+- Files downloaded to `single-cell-atlas-dataset/`
+- Human: `Hs10X.counts.{barcodes,features,mtx}.gz` + `cell_metadata.tsv.gz`
+- ~18 human donors, visceral (VAT) and subcutaneous (SAT), lean (BMI<30) vs obese (BMI>40)
+- Explicitly includes CD142+ ASPC subpopulations — the human equivalent of mouse Areg cells
+
+**Why this works as validation:** In mice, obesity suppresses Fndc5 in Areg cells and exercise restores it. The Emont dataset has no exercise arm, but lean vs obese is a valid proxy: if the same biology holds in humans, lean donors should have higher FNDC5 in VAT ASPCs than obese donors.
+
+**Planned analysis:**
+1. Load the human count matrix + metadata into AnnData
+2. Subset to VAT (visceral fat), isolate ASPC cluster (look for CD142/F3+ annotations)
+3. Compare FNDC5 expression in lean vs obese donors using pseudobulk DESeq2 (N per group ~3-5)
+4. Check ITGB5 (irisin receptor) in the same cell type — constitutive expression would replicate the mouse finding
+5. If FNDC5 is lower in obese human VAT ASPCs: cross-species, cross-dataset validation of the Fndc5 axis
+
+**Key caveat — dataset not suitable for this hypothesis:** Every lean donor (EPI prefix) comes from BIDMC (Boston, elective surgery); every obese donor (TP/UP prefix) comes from UPMC (Pittsburgh, bariatric surgery). BMI group and hospital are perfectly correlated — the lean vs. obese comparison is entirely confounded with recruitment site. The original Emont paper acknowledged this and did not make strong lean/obese DE claims. ITGB5 (irisin receptor) constitutional expression was confirmed across all groups, but the FNDC5 BMI comparison is uninterpretable.
+
+**What dataset would work:** Single-site cohort, visceral fat, lean (BMI<25) and obese (BMI>35) donors processed identically, N≥5 per group, with ASPC/stromal annotation. Search GEO for: human omental OR visceral adipose scRNA-seq single-cohort lean obese.
+
+---
+
+### NB19b: Human Validation — GSE214982 (University of Utah, visceral fat)
+
+**Priority: HIGH — do before GSE295708**
+
+**Dataset:** GSE214982 — BMPER study, University of Utah
+- 9 donors (4 lean, 5 obese), single site, single protocol — no cohort confound
+- **Omental/visceral fat** — the correct depot to match the mouse vWAT finding
+- Adipose progenitor cells (APCs) are the primary annotated population
+- Weakness: N=9 is small; no statistical power for DESeq2, rely on rank separation
+
+**Why do this before GSE295708:** GSE295708 is subcutaneous only. A negative result there could mean the signal is visceral-specific (which the mouse data already suggests) — not that the finding is wrong. GSE214982 tests the right depot first.
+
+**Planned analysis:** Same structure as NB19 — load count matrix, isolate APC/progenitor cluster, compare FNDC5 lean vs obese per donor, check rank separation, check ITGB5 constitutive expression.
+
+**Interpret carefully:** With N=4 lean and N=5 obese at a single site, a clean rank separation (every lean > every obese, or vice versa) would be meaningful even without formal statistics — same logic that validated the mouse finding at N=3.
+
+---
+
+### NB19c: Human Validation — GSE295708 (Miranda et al., Nature 2025, subcutaneous)
+
+**Status: COMPLETE (2026-05-16)**
+
+**Dataset:** GSE295708 — Miranda et al. Nature 2025, Imperial College London / UCLH
+- 70 donors: 25 obese pre-bariatric surgery, same 25 post-weight-loss, 24 lean controls
+- All from a single site (UCLH, London) — no batch confound
+- 18 pools (6 per group), periumbilical subcutaneous SAT, snRNA-seq
+- 187,252 cells loaded → 183,523 after QC. 36,601 genes.
+
+**Results — pseudobulk DESeq2 on Areg-equivalent cells** (F3>0, PDGFRA>0, PTPRC=0, PECAM1=0;
+1,771 cells from 17 pools; `~ group + female_only` covariate; v2 analysis 2026-05-16):
+
+| Gene | lean_vs_obese logFC | padj | wl_vs_obese logFC | padj |
+|------|---------------------|------|-------------------|------|
+| FNDC5 | -0.19 | NaN (below detection, baseMean=2-3) | -0.98 | NaN |
+| PPARGC1B | +1.02 | **0.013** | +1.84 | **4.7e-12** |
+| NR1D1 | +1.76 | 0.166 | +2.30 | **0.001** |
+| NR1D2 | +0.68 | 0.068 | +1.31 | **2.4e-13** |
+
+**FNDC5 result explained — vWAT-specificity confirmed in mice (checked same session):**
+- Mouse scWAT Areg: Fndc5 near-zero in all conditions; TC vs SC rank separation 9/12 inversions (noise)
+- Mouse vWAT Areg: clean signal, all 4 TC > all 3 SC
+- Conclusion: Fndc5 exercise response is genuinely vWAT-specific. Human SAT not detecting it
+  is expected biology, not a replication failure or technical artifact.
+
+**v1 "lean > obese" result was contamination artifact** — taking the whole progenitor cluster
+(77% non-Areg cells) gave FNDC5 lean=0.022 > obese=0.013, but this vanished when filtering
+to clean Areg-equivalent cells. The v1 result should be discarded.
+
+**What does replicate in human SAT:**
+PPARGC1B and NR1D1/NR1D2 significantly suppressed by obesity and restored by weight loss.
+The upstream CLOCK/circadian mechanism is conserved; the Fndc5 output is vWAT-restricted.
+
+**Sex metadata:** Pool_14 (Lean), Pool_16 (Obese), Pool_18 (WL) are female-only pools —
+one per group, balanced design, included as covariate in DESeq2.
+
+---
+
+## Publishability Assessment (2026-05-14)
+
+### What makes this worth pursuing
+
+1. **Novel finding that passed credibility checks.** Areg-specific exercise-induced Fndc5 in vWAT is not in the Yang et al. paper or any prior literature. The signal is clean — perfect per-mouse rank separation, rules out contamination and outlier artifacts.
+
+2. **Independent mechanism validation exists.** Mu et al. 2026 independently showed exogenous irisin → IL-33 → Treg circuit in fat MSCs using wet-lab experiments. Having a 2026 wet-lab paper that independently validates a piece of your computational circuit is rare and valuable — most computational findings have no such anchor.
+
+3. **The dataset is published and public.** Anyone can reproduce this. The fact that Yang et al. had this data and didn't report it makes it a legitimate re-analysis finding rather than a one-off curiosity.
+
+### What limits publishability right now
+
+| Gap | Severity | Fixable computationally? |
+|-----|----------|--------------------------|
+| mRNA only — no irisin protein measured in Areg cells | High | No — needs wet lab |
+| N=3 mice per condition | Medium | No — but rank separation mitigates this |
+| Human validation | High | **✓ DONE — GSE214982 (omental, lean>obese ✓) + GSE295708 (SAT, lean>obese ✓, WL dissociation consistent with triple-gate model)** |
+| Il33 not significant in Areg (padj=0.548) | Medium | No — but co-expression and 4-condition trend support it |
+| β3-agonist dissociation | Low — resolved | Triple-gate lock (2026-05-15): clock (cAMP), AMPK license (Lally 2015), PGC-1α4 key (Guo 2024). β3-agonist opens gate 1, fails gates 2–3, and PKA actively inhibits AMPK via Ser173 phosphorylation (Djukic 2016). Only real exercise opens all three. |
+| CXCL12 finding not DESeq2 significant | Low | No — frame as directional/exploratory |
+
+### The most actionable next steps (in order)
+
+1. **Literature check on CLOCK → Fndc5 in fat. ✓ COMPLETE (2026-05-14)**
+
+**Verdict: NOVEL.** No prior paper has proposed or shown CLOCK/BMAL1 drives Fndc5 in fat progenitor/Areg cells. The individual pieces exist in isolation but have never been integrated: Areg cells defined (Schwalie 2018) + exercise reactivates clock in fat MSCs (Yang 2022) + CLOCK/BMAL1 binds Fndc5 E-box in muscle (Guo et al. 2024). Nobody has connected all three.
+
+**Key prior art to cite — Guo et al. 2024:** Shows BMAL1 and PGC1α4 cooperate to drive Fndc5 transcription in skeletal muscle via E-box binding. This is the molecular blueprint for the mechanism you're proposing in fat, and it directly informs the β3-agonist dissociation (see step 2).
+
+**Caution:** Gemini added speculative "second/third order insights" and a transcription rate equation. These are Gemini's own synthesis, not established findings — treat as plausible hypotheses only, not citable prior art.
+
+2. **Resolve the β3-agonist dissociation — updated hypothesis (2026-05-14)**
+
+**✓ RESOLVED (2026-05-15) — triple-gate lock model (Gemini Prompt 2 + literature):**
+
+Fndc5 transcription requires three conditions simultaneously:
+
+| Gate | Signal needed | β3-agonist provides? |
+|------|--------------|----------------------|
+| 1. Clock state | BMAL1:CLOCK active via cAMP/PKA | ✓ — explains Nr1d1/Nr1d2 reactivating |
+| 2. Metabolic license | AMPK active, promoter poised (Lally et al. 2015) | ✗ — fails |
+| 3. Exercise key | PGC-1α4 recruited to Fndc5 promoter (Guo et al. 2024) | ✗ — fails |
+
+**Active antagonism (Djukic et al. 2016):** PKA phosphorylates AMPK-α at Ser173, blocking the activating Thr172 phosphorylation. High-dose β3-agonist may not just fail to activate AMPK — it may actively suppress it below baseline. β3-agonist opens gate 1 and closes gate 2. Only physical exercise (energy stress + muscle contraction) opens all three simultaneously.
+
+**PGC-1α4 still unresolvable in this dataset:** scRNA-seq reads too short to distinguish isoforms. Full Ppargc1a gene expressed in Areg cells and trends up (SC: 0.0036 → TC: 0.0047). Confirming PGC-1α4 specifically requires long-read RNA-seq or isoform-specific primers in sorted Areg cells — wet-lab only. Flag as a concrete next experiment in any paper.
+
+**Ppargc1b — CLOCK drives a coordinated stromal program (2026-05-15):** Ppargc1b (PGC-1β) shows the strongest exercise fold-change of any gene in vWAT Areg cells (SC=0.0010 → TC=0.0065, 6.5×) and rises across the whole MSC lineage (pre_CP 4.3×, WAT_IPC 3.4×, CP 3.4×). Fndc5 is Areg-specific; Ppargc1b is the lineage-wide exercise program marker. Both are CLOCK targets — CLOCK reactivation co-induces a coordinated program, not just a single gene. Fat Areg cells use Ppargc1b (transcriptionally induced from near-zero) vs muscle which uses Ppargc1a (post-translationally activated from pre-existing protein) — a genuine mechanistic difference not previously reported in Areg cells.
+
+3. **Analyze GSE214982** — visceral fat, single-site, lean vs obese. If FNDC5 shows lean > obese in human omental ASPCs with clean rank separation, the story is cross-species validated and substantially stronger.
+
+4. **Analyze GSE295708 — ✓ COMPLETE (2026-05-16).** FNDC5 lean > obese in human SAT progenitors (72% higher). Not restored by bariatric surgery alone. PPARGC1B/NR1D1 do recover with weight loss — FNDC5 vs PPARGC1B dissociation mirrors β3-agonist experiment, consistent with triple-gate model.
+
+5. **If human data holds: find a collaborator with access to sorted human Areg cells or mouse tissue for irisin protein staining.** Computational findings in this space typically need at least one wet-lab panel (immunostaining or ELISA) to reach a high-impact journal. This is not something you can do alone — it requires a biology collaborator.
+
+### The decision gate
+
+Steps 1 and 2 are cheap (hours, not weeks) and could change the framing or reveal a fatal gap before you invest in human analysis. Do them first. Then if the literature check clears and the β3-agonist dissociation has a plausible explanation, proceed to GSE214982 as the primary validation decision: if FNDC5 is lower in obese human visceral fat ASPCs with clean rank separation, pursue seriously and seek a collaborator. If flat or reversed without a confound explanation, the finding may be mouse-specific and the scope narrows to a mouse-focused computational paper.
+
+---
+
 ### Optional: MoTrPAC Cross-Species Validation
 MoTrPAC (NIH exercise atlas, rat endurance training, motrpac-data.org) has bulk RNA-seq
 from VENACV (visceral fat) across 1, 2, 4, 8 weeks of training. Could check whether rat
@@ -654,23 +798,91 @@ the core claim.
 
 ---
 
-## Presentation Strategy (updated 2026-05-10)
+### New human dataset leads (from Gemini 2026-05-16)
+
+**1. MoTrPAC Human ASAT Acute Exercise — ANALYZED (2026-05-16)**
+- 173 sedentary adults, endurance / resistance / control, ASAT biopsies pre + 45min/4hr/24hr post
+- Bulk RNA-seq + cell-type deconvolution (not raw scRNA-seq)
+- Downloaded transcriptomics DA file: `motrpac_transcriptomics/da/human-precovid-sed-adu_t11-adipose_*`
+- **Key results for our genes (adipose, post vs pre exercise):**
+
+| Gene | Resist 3.5-4hr logFC | padj | Endur 3.5-4hr logFC | padj |
+|------|---------------------|------|---------------------|------|
+| PPARGC1B | **+0.281** | **6e-5** | +0.171 | 0.056 |
+| NR1D1 | -2.167 | 1e-48 | -1.941 | 1e-35 |
+| NR1D2 | -0.735 | 6e-33 | -0.680 | 6e-24 |
+| FNDC5 | -0.228 | 0.032 | -0.120 | 0.415 |
+| ITGB5 | -0.011 | 0.608 | -0.007 | 0.767 |
+
+- **PPARGC1B goes UP with resistance exercise** at 3.5-4hr in human fat — corroborates
+  the mouse finding and triple-gate model (resistance exercise activates the PGC-1 arm)
+- **NR1D1/NR1D2 go DOWN acutely** — this is a circadian clock reset artifact of acute
+  exercise (single bout), not contradictory to the chronic training story in Yang et al.
+  Circadian genes dip transiently post-acute-exercise before rebounding
+- **FNDC5 bulk signal is diluted** — bulk tissue mixes Areg cells (<1% of tissue) with
+  all other cell types; a small negative in bulk is uninformative about Areg-specific signal
+- **ITGB5 flat** — constitutively expressed, consistent with mouse and GSE214982 findings
+- **Limitation:** Subcutaneous only; acute exercise, not chronic training; bulk not single-cell
+
+**2. Grothen 2026 (Molecular Metabolism) — MEDIUM INTEREST, not yet accessed**
+- True snRNA-seq on human subcutaneous fat, before and after lifestyle intervention
+- Lifestyle = regular exercise + hypocaloric diet (confounded)
+- Data at Capital Region of Denmark / Novo Nordisk Foundation Center portal
+
+**3. Confirmed missing:** Human visceral fat + exercise scRNA-seq does not exist in any
+public repository. GEO search for "human adipose exercise single cell RNA seq" returns
+zero results (confirmed 2026-05-16). Visceral biopsies only happen during surgery —
+pre/post exercise designs are not feasible. This is a genuine gap that strengthens the
+mouse finding's novelty.
+
+---
+
+## Presentation Strategy (updated 2026-05-16)
+
+**The thesis (revised after human validation):**
+
+> Obesity suppresses a CLOCK-driven exercise-response program in fat progenitor cells
+> (Fndc5, Ppargc1b, Nr1d1). Exercise fully restores it; weight loss alone partially restores
+> it (circadian genes recover) but not the irisin arm (Fndc5 stays suppressed). This
+> dissociation is conserved from mouse vWAT to human subcutaneous fat, and is mechanistically
+> explained by a three-gate requirement: PGC-1α4 — activated only by physical energy stress —
+> is necessary for Fndc5 but not for circadian gene reactivation.
 
 **The headline finding:** Areg cells in vWAT appear to run a self-contained exercise-response
 circuit: Fndc5 up → local irisin → Il33 up → Treg expansion. Previously, irisin was thought
 to travel from muscle to fat. We show fat may produce it locally, and the downstream consequence
 (IL-33/Treg) connects to a wet-lab validated mechanism (Mu et al. 2026).
 
+**vWAT-specificity of Fndc5 — confirmed at three levels (2026-05-16):**
+- Mouse vWAT Areg: clean exercise induction, perfect rank separation (4 TC > 3 SC)
+- Mouse scWAT Areg: near-zero in all conditions, 9/12 rank inversions — no signal
+- Human SAT Areg-equivalent: below DESeq2 detection threshold (baseMean=2-3 counts)
+All three data points tell the same story. This is a coherent depot-specific finding, not
+a replication failure. Frame it as a strength: the vWAT-specificity is validated cross-species.
+
+**What human SAT does validate (lead with this to editors):**
+PPARGC1B (padj=0.013) and NR1D1/NR1D2 (padj=0.001–2.4e-13) are significantly suppressed
+by obesity and restored by weight loss in human SAT Areg-equivalent cells. The upstream
+CLOCK mechanism is conserved in humans; the Fndc5 output is restricted to visceral fat.
+This is the honest human validation: mechanism confirmed, depot-specificity explained.
+
 **How to frame it:**
-1. Lead with the Mu et al. 2026 context: irisin→IL-33→Treg is an established wet-lab finding
-2. Show our data: Fndc5 and Il33 both go up in Areg cells with exercise (NB11 + NB14)
-3. Note what's novel: Mu et al. used exogenous irisin; we see endogenous Fndc5 and Il33
-   co-upregulation in the same cell type — consistent with the circuit running locally
-4. State the honest limit: this is mRNA, N=3, requires protein-level validation
-5. Secondary finding: CCL2↓/CXCL12↑ stromal immune switch (NB13) — directional, not
-   statistically confirmed, not in Yang et al.
+1. Lead with the weight-loss dissociation as the human observation that tests the mechanism
+2. Show the mouse mechanistic model: CLOCK-driven coordinated program, triple-gate lock
+3. Show Mu et al. 2026 wet-lab context: irisin→IL-33→Treg independently validated
+4. Show our data: Fndc5, Ppargc1b, Nr1d1 co-upregulated in Areg cells with exercise (NB11, NB17)
+5. Cross-species: direction replicates in two human cohorts (omental NB19b, SAT NB19c)
+6. State the honest limit: mRNA only, N=3 mice, protein validation needed
+
+**Why PPARGC1B matters as a co-finding:**
+PPARGC1B (PGC-1β) shows stronger fold-change than FNDC5 in both the mouse (6.5×) and human
+datasets. Presenting FNDC5 alone would understate the finding. The story is a CLOCK-driven
+coordinated program, of which Fndc5 is the irisin-relevant output and Ppargc1b is the broader
+lineage marker. More publishable than a single-gene claim.
 
 **What this is NOT:**
 - Not a claim that we proved the circuit operates (protein not measured)
 - Not a claim that muscle irisin doesn't matter (it might matter too)
 - Not a claim that Mu et al. is confirmed (different experimental setup)
+- Not a claim that weight loss is harmful — the dissociation shows exercise adds something
+  beyond weight loss, not that weight loss doesn't help

@@ -4,6 +4,24 @@
 
 # Raw data downloads
 data/
+GSE214982_RAW/
+GSE295708_RAW/
+data_gse128889/
+data_gse183239/
+data_gse242354/
+data_gse35026/
+motrpac_transcriptomics/
+time-restricted/
+gwas/
+single-cell-atlas-dataset/
+python_pipeline/dataset/
+
+# Downloaded PDFs (re-downloadable)
+*.pdf
+
+# Large compressed data files
+*.txt.gz
+*.gz
 
 # Python virtual environment
 .venv/
