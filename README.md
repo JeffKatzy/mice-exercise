@@ -18,7 +18,7 @@ Using DESeq2, we recovered the original genes already identified by Yang et al.,
 
 ![Volcano plot — Areg exercise DEGs](python_pipeline/outputs/volcano_areg_exercise.png)
 
-*Fndc5 (bold) sits just above the significance threshold at padj=0.0077, log2FC=+1.51, alongside the four canonical CLOCK targets (Nr1d1, Nr1d2, Tef, Dbp). Fndc5 is the 13th most significant gene out of 8,407 tested. In committed preadipocytes (CP cells), the same exercise contrast yields Fndc5 padj=0.18 — not significant — making Areg the only cell state where the induction is statistically supported.*
+*Fndc5 (bold) sits just above the significance threshold at padj=0.0077, log2FC=+1.51, alongside the four canonical CLOCK targets (Nr1d1, Nr1d2, Tef, Dbp). Fndc5 is the 13th most significant gene out of 8,407 tested. Its fold-change (+1.51) is comparable to three of the four canonical CLOCK targets in the same analysis (Nr1d1: +1.44, Nr1d2: +1.36, Tef: +1.54); only Dbp is substantially larger (+4.50). In committed preadipocytes (CP cells), Fndc5 trends in the same direction (log2FC=+0.92) but does not reach significance (padj=0.18), likely due to higher baseline variance in a cell state that constitutively expresses Fndc5 at roughly three times Areg's level. The direction is consistent with a paracrine effect; the result is underpowered rather than flat.*
 
 ---
 
@@ -26,7 +26,7 @@ Using DESeq2, we recovered the original genes already identified by Yang et al.,
 
 ### Rank Separation
 
-As further evidence that Fndc5 is genuinely expressed at higher levels in Areg cells under training, we compared expression across trained and untrained normal-diet mice. We found perfect rank separation: every trained mouse had higher Fndc5 expression than every sedentary mouse, with no exceptions across all pairwise comparisons (permutation p=0.029, the minimum achievable with these group sizes). Expression was normalized by each cell's total UMI count (sequencing depth) and averaged across all Areg cells per mouse.
+As a robustness check on the DESeq2 result, we examined whether the signal held at the individual-mouse level rather than being driven by a single outlier. Expression was normalized by each cell's total UMI count (sequencing depth) and averaged across all Areg cells per mouse. Every trained mouse exceeded every sedentary mouse with no exceptions (permutation p=0.029, the minimum achievable with n=4 vs n=3). This is consistent with the pseudobulk result rather than independent confirmation of it — with seven mice total, it is best read as showing the effect is not an artifact of one animal.
 
 ![Per-mouse Fndc5 expression — all 4 conditions](python_pipeline/outputs/fndc5_areg_per_mouse.png)
 
