@@ -18,7 +18,7 @@ Using DESeq2, we recovered the original genes already identified by Yang et al.,
 
 ![Volcano plot — Areg exercise DEGs](python_pipeline/outputs/volcano_areg_exercise.png)
 
-*Fndc5 (bold) sits just above the significance threshold at padj=0.0077, log2FC=+1.51, alongside the four canonical CLOCK targets (Nr1d1, Nr1d2, Tef, Dbp). Fndc5 is the 13th most significant gene out of 8,407 tested. Its fold-change (+1.51) is comparable to three of the four canonical CLOCK targets in the same analysis (Nr1d1: +1.44, Nr1d2: +1.36, Tef: +1.54); only Dbp is substantially larger (+4.50). In committed preadipocytes (CP cells), Fndc5 trends in the same direction (log2FC=+0.92) but does not reach significance (padj=0.18), likely due to higher baseline variance in a cell state that constitutively expresses Fndc5 at roughly three times Areg's level. The direction is consistent with a paracrine effect; the result is underpowered rather than flat.*
+*Fndc5 (bold) sits just above the significance threshold at padj=0.0077, log2FC=+1.51, alongside the four canonical CLOCK targets (Nr1d1, Nr1d2, Tef, Dbp). Fndc5 is the 13th most significant gene out of 8,407 tested. Its fold-change (+1.51) is comparable to three of the four canonical CLOCK targets in the same analysis (Nr1d1: +1.44, Nr1d2: +1.36, Tef: +1.54).*
 
 ---
 
