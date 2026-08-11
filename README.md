@@ -12,7 +12,7 @@ Using single-cell RNA analysis on their atlas of 205,000 cells spanning both mus
 
 ## An Updated Approach
 
-We re-analyzed their data, updating their use of the edgeR test in favor of DESeq2. Both used pseudobulk, which treats each individual mouse as an independent sample.
+We re-analyzed their data, swapping their edgeR test in favor of the updated approach of DESeq2. Both used pseudobulk, which treats each individual mouse as an independent sample. However, DeSeq2 is more cautious with genes that look dramatically changed but are based on only a little data, which is true of this dataset.
 
 Using DESeq2, we recovered the original genes already identified by Yang et al., including the clock genes. However, we also found a new gene — Fndc5 — in adipose tissue, a gene not previously reported in Areg cells specifically.
 
